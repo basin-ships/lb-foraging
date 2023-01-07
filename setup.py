@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="lbforaging-coin-toss",
+    name="lbforaging",
     version="1.1.1",
     description="Level Based Foraging Environment",
     author="Filippos Christianos",
