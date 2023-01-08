@@ -337,7 +337,52 @@ class ForagingEnv(Env):
     def get_valid_actions(self) -> list:
         return list(product(*[self._valid_actions[player] for player in self.players]))
 
-    def _make_obs(self, player):
+    def _make_obs(self, player, full_obs=False):
+        if full_obs: 
+            temp_sight = self.field_size[0]
+        else: 
+            temp_sight=self.sight
+        #print("temp_sight in _make_obs is ", temp_sight)
+        actions=self._valid_actions[player]
+        players=[
+                self.PlayerObservation(
+                    position=self._transform_to_neighborhood(
+                        player.position, temp_sight, a.position
+                    ),
+                    level=a.level,
+                    is_self=a == player,
+                    history=a.history,
+                    reward=a.reward if a == player else None,
+                )
+                for a in self.players
+                if (
+                    min(
+                        self._transform_to_neighborhood(
+                            player.position, temp_sight, a.position
+                        )
+                    )
+                    >= 0
+                )
+                and max(
+                    self._transform_to_neighborhood(
+                        player.position, temp_sight, a.position
+                    )
+                )
+                <= 2 * temp_sight
+            ]
+        field=np.copy(self.neighborhood(*player.position, temp_sight))
+        sight = temp_sight #this is something to change
+        return self.Observation(
+            actions=actions,
+            players=players,
+            # todo also check max?
+            field=field,
+            game_over=self.game_over,
+            sight=sight,
+            current_step=self.current_step,
+        )
+            
+            
         return self.Observation(
             actions=self._valid_actions[player],
             players=[
@@ -569,7 +614,11 @@ class ForagingEnv(Env):
 
         for p in self.players:
             p.score += p.reward
+            
+        full_obs = np.random.binomial(n=1,p=0.2)
 
+        observations = [self._make_obs(player, full_obs) for player in self.players]
+        #print("observations at the end of env.step", observations)
         return self._make_gym_obs()
 
     def _init_render(self):
