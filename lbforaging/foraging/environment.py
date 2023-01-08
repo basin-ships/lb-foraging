@@ -383,41 +383,7 @@ class ForagingEnv(Env):
         )
             
             
-        return self.Observation(
-            actions=self._valid_actions[player],
-            players=[
-                self.PlayerObservation(
-                    position=self._transform_to_neighborhood(
-                        player.position, self.sight, a.position
-                    ),
-                    level=a.level,
-                    is_self=a == player,
-                    history=a.history,
-                    reward=a.reward if a == player else None,
-                )
-                for a in self.players
-                if (
-                    min(
-                        self._transform_to_neighborhood(
-                            player.position, self.sight, a.position
-                        )
-                    )
-                    >= 0
-                )
-                and max(
-                    self._transform_to_neighborhood(
-                        player.position, self.sight, a.position
-                    )
-                )
-                <= 2 * self.sight
-            ],
-            # todo also check max?
-            field=np.copy(self.neighborhood(*player.position, self.sight)),
-            game_over=self.game_over,
-            sight=self.sight,
-            current_step=self.current_step,
-        )
-
+  
     def _make_gym_obs(self):
         def make_obs_array(observation):
             obs = np.zeros(self.observation_space[0].shape, dtype=np.float32)
@@ -615,9 +581,9 @@ class ForagingEnv(Env):
         for p in self.players:
             p.score += p.reward
             
-        full_obs = np.random.binomial(n=1,p=0.2)
+        full_obs = np.random.binomial(n=1,p=0.5)
 
-        observations = [self._make_obs(player, full_obs) for player in self.players]
+        #observations = [self._make_obs(player, full_obs) for player in self.players]
         #print("observations at the end of env.step", observations)
         return self._make_gym_obs()
 
