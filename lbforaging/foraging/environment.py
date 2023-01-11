@@ -581,7 +581,7 @@ class ForagingEnv(Env):
         for p in self.players:
             p.score += p.reward
             
-        full_obs = np.random.binomial(n=1,p=0.4)
+        full_obs = np.random.binomial(n=1,p=0.6)
 
         #observations = [self._make_obs(player, full_obs) for player in self.players]
         #print("observations at the end of env.step", observations)
